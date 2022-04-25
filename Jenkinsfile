@@ -1,42 +1,32 @@
 pipeline {
-   agent any
-   tools {
-      maven 'Maven'
-   }
-   stages {
-       stage("build") {
-           steps {
-              snDevOpsStep ()
-               echo "Building" 
-                sh 'mvn clean install -DskipTests'
-               sleep 5
-              
-           }
-       }
-       
-       stage("test") {
-           steps {
-               snDevOpsStep ()
-               echo "Testing"
-               sh 'mvn test -Dpublish'
-               sleep 3
-           }
-          post {
-                always {
-                    junit '**/target/surefire-reports/*.xml' 
-                }
-          }
+    agent any
+    tools { 
+        maven 'Maven' 
+    }
+    stages {
+        stage('Build') {
+            steps {
+                sh 'mvn clean install -DskipTests=true'
+            }
         }
-
-       stage("deploy") {
-           steps {
-               snDevOpsStep ()       
-               echo "Deploying"
-               snDevOpsChange()
-               // release process
-               // release process
-               sleep 7
-           }
-       }
-   }
+        stage('Unit Test') {
+            steps {
+                sh "mvn test -Dtest=AppTest"
+            }
+        }
+        stage('Integration Test') {
+            steps {
+                echo "Integration Test"
+            }
+        }
+        stage('Deploy') {
+            steps {
+                // sh "mvn -B deploy"
+                // sh "mvn -B release:prepare"
+                // sh "mvn -B release:perform"
+                // deploy using kubernetes - kubectl
+                 echo "Deploy to prod"
+            }
+        }
+    }
 }
